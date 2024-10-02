@@ -42,6 +42,8 @@ const deadZone = {
 };
 
 const player = {
+  positionX: 0,
+  positionY: 0,
   x: 0,
   y: 0,
   width: 16,
@@ -94,6 +96,12 @@ function resizeCanvas() {
   deadZone.height = canvas.height / 3;
   deadZone.x = (canvas.width - deadZone.width) / 2;
   deadZone.y = (canvas.height - deadZone.height) / 2;
+  // プレイヤーが進んでる分マイナスする
+  map.x = map.x;
+  map.y = map.y;
+  // マップ処理後に更新
+  player.x = (canvas.width / 2) - (16 / 2);
+  player.y = (canvas.height / 2) - (24 / 2);
   draw();
 }
 
@@ -234,8 +242,11 @@ function init() {
   tile.image = new Image();
   tile.image.src = 'map.png';
   resizeCanvas();
-  // player.x = (canvas.width / 2) - (16 / 2);
-  // player.y = (canvas.height / 2) - (24 / 2);
+  // 初期化時の座標が拡大率と合わない場合にぼやけ発生
+  player.x = (canvas.width / 2) - (16 / 2);
+  player.y = (canvas.height / 2) - (24 / 2);
+  map.x = player.x + player.width / 2;
+  map.y = player.y + player.height / 2;
   gameLoop();
 }
 
