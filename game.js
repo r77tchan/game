@@ -29,12 +29,17 @@ const tileMap = [
   [tile.n, tile.m, tile.o, tile.p]
 ];
 
-const camera = {
-  // x: 0,
-  // y: 0,
-  // width: canvas.width,
-  // height: canvas.height
-}
+const map = {
+  x: 0,
+  y: 0
+};
+
+const deadZone = {
+  width: 0,
+  height: 0,
+  x: 0,
+  y: 0
+};
 
 const player = {
   x: 0,
@@ -47,7 +52,7 @@ const player = {
   animationFrameY: 2,
   animationCounter: 0,
   animationDelay: 10,
-  direction: 'down'
+  direction: 'down',
 };
 
 const keys = {
@@ -85,6 +90,10 @@ function resizeCanvas() {
   // ウィンドウ全体をキャンバスのサイズに設定
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+  deadZone.width = canvas.width / 3;
+  deadZone.height = canvas.height / 3;
+  deadZone.x = (canvas.width - deadZone.width) / 2;
+  deadZone.y = (canvas.height - deadZone.height) / 2;
   draw();
 }
 
@@ -95,19 +104,35 @@ function update() {
   let isMovingLeft = false;
   let isMovingDown = false;
   if (keys.ArrowUp || keys.e || keys.i) {
-    player.y -= player.speed;
+    if (deadZone.y < player.y) {
+      player.y -= player.speed;
+    } else {
+      map.y += player.speed;
+    }
     isMovingUp = true;
   }
   if (keys.ArrowRight || keys.f || keys.l) {
-    player.x += player.speed;
+    if (deadZone.x + deadZone.width > player.x + player.width) {
+      player.x += player.speed;
+    } else {
+      map.x -= player.speed;
+    }
     isMovingRight = true;
   }
   if (keys.ArrowLeft || keys.s || keys.j) {
-    player.x -= player.speed;
+    if (deadZone.x < player.x) {
+      player.x -= player.speed;
+    } else {
+      map.x += player.speed;
+    }
     isMovingLeft = true;
   }
   if (keys.ArrowDown || keys.d || keys.k) {
-    player.y += player.speed;
+    if (deadZone.y + deadZone.height > player.y + player.height) {
+      player.y += player.speed;
+    } else {
+      map.y -= player.speed;
+    }
     isMovingDown = true;
   }
   if(isMovingUp || isMovingRight || isMovingLeft || isMovingDown) {
@@ -156,9 +181,8 @@ function update() {
     player.animationFrameY = 2;
     player.direction = 'down'
   }
-  // 画面外に出ないようにする
-  player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-  player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+  
+  
 }
 
 function drawMap() {
@@ -168,7 +192,7 @@ function drawMap() {
       const SCALE = 16;
       for (let k = 0; k < SCALE; k++) {
         for (let l = 0; l < SCALE; l++) {
-          ctx.drawImage(tile.image, selected[0] * 16, selected[1] * 16, 16, 16, 16 * (col * SCALE + l), 16 * (row * SCALE + k), 16, 16);
+          ctx.drawImage(tile.image, selected[0] * 16, selected[1] * 16, 16, 16, 16 * (col * SCALE + l) + map.x, 16 * (row * SCALE + k) + map.y, 16, 16);
         }
       }
     }
@@ -179,6 +203,23 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap();
   ctx.drawImage(player.image, player.animationFrameX * 24, player.animationFrameY * 32, 24, 32, player.x - 4, player.y - 8, 24, 32);
+
+  // デッドゾーンを視覚的に描画（デバッグ用）
+  ctx.strokeStyle = 'red';
+  ctx.strokeRect(
+    deadZone.x, // 開始x
+    deadZone.y, // 開始y
+    deadZone.width, // 横幅
+    deadZone.height // 高さ
+  );
+
+  // プレイヤー判定
+  ctx.strokeRect(
+    player.x,
+    player.y,
+    player.width,
+    player.height
+  )
 }
 
 function gameLoop() {
@@ -193,6 +234,8 @@ function init() {
   tile.image = new Image();
   tile.image.src = 'map.png';
   resizeCanvas();
+  // player.x = (canvas.width / 2) - (16 / 2);
+  // player.y = (canvas.height / 2) - (24 / 2);
   gameLoop();
 }
 
