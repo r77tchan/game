@@ -44,8 +44,8 @@ const deadZone = {
 const player = {
   positionX: 0,
   positionY: 0,
-  x: 0,
-  y: 0,
+  drawX: 0,
+  drawY: 0,
   width: 16,
   height: 24,
   speed: 1,
@@ -89,19 +89,19 @@ document.addEventListener('keyup', (e) => {
 window.addEventListener('resize', resizeCanvas);
 
 function resizeCanvas() {
-  // ウィンドウ全体をキャンバスのサイズに設定
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // ウィンドウサイズに基づいてキャンバスのサイズを設定し、8の倍数に丸める
+  canvas.width = Math.floor(window.innerWidth / 2) * 2;
+  canvas.height = Math.floor(window.innerHeight / 2) * 2;
   deadZone.width = canvas.width / 3;
   deadZone.height = canvas.height / 3;
   deadZone.x = (canvas.width - deadZone.width) / 2;
   deadZone.y = (canvas.height - deadZone.height) / 2;
   // プレイヤーが進んでる分マイナスする
-  map.x = map.x;
-  map.y = map.y;
+  map.x = (canvas.width / 2) - (16 / 2) - player.positionX + player.width / 2;
+  map.y = (canvas.height / 2) - (24 / 2) - player.positionY + player.height / 2;
   // マップ処理後に更新
-  player.x = (canvas.width / 2) - (16 / 2);
-  player.y = (canvas.height / 2) - (24 / 2);
+  player.drawX = (canvas.width / 2) - (16 / 2);
+  player.drawY = (canvas.height / 2) - (24 / 2);
   draw();
 }
 
@@ -112,35 +112,39 @@ function update() {
   let isMovingLeft = false;
   let isMovingDown = false;
   if (keys.ArrowUp || keys.e || keys.i) {
-    if (deadZone.y < player.y) {
-      player.y -= player.speed;
+    if (deadZone.y < player.drawY) {
+      player.drawY -= player.speed;
     } else {
       map.y += player.speed;
     }
+    player.positionY -= player.speed;
     isMovingUp = true;
   }
   if (keys.ArrowRight || keys.f || keys.l) {
-    if (deadZone.x + deadZone.width > player.x + player.width) {
-      player.x += player.speed;
+    if (deadZone.x + deadZone.width > player.drawX + player.width) {
+      player.drawX += player.speed;
     } else {
       map.x -= player.speed;
     }
+    player.positionX += player.speed;
     isMovingRight = true;
   }
   if (keys.ArrowLeft || keys.s || keys.j) {
-    if (deadZone.x < player.x) {
-      player.x -= player.speed;
+    if (deadZone.x < player.drawX) {
+      player.drawX -= player.speed;
     } else {
       map.x += player.speed;
     }
+    player.positionX -= player.speed;
     isMovingLeft = true;
   }
   if (keys.ArrowDown || keys.d || keys.k) {
-    if (deadZone.y + deadZone.height > player.y + player.height) {
-      player.y += player.speed;
+    if (deadZone.y + deadZone.height > player.drawY + player.height) {
+      player.drawY += player.speed;
     } else {
       map.y -= player.speed;
     }
+    player.positionY += player.speed;
     isMovingDown = true;
   }
   if(isMovingUp || isMovingRight || isMovingLeft || isMovingDown) {
@@ -210,7 +214,7 @@ function drawMap() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap();
-  ctx.drawImage(player.image, player.animationFrameX * 24, player.animationFrameY * 32, 24, 32, player.x - 4, player.y - 8, 24, 32);
+  ctx.drawImage(player.image, player.animationFrameX * 24, player.animationFrameY * 32, 24, 32, player.drawX - 4, player.drawY - 8, 24, 32);
 
   // デッドゾーンを視覚的に描画（デバッグ用）
   ctx.strokeStyle = 'red';
@@ -223,8 +227,8 @@ function draw() {
 
   // プレイヤー判定
   ctx.strokeRect(
-    player.x,
-    player.y,
+    player.drawX,
+    player.drawY,
     player.width,
     player.height
   )
@@ -243,10 +247,11 @@ function init() {
   tile.image.src = 'map.png';
   resizeCanvas();
   // 初期化時の座標が拡大率と合わない場合にぼやけ発生
-  player.x = (canvas.width / 2) - (16 / 2);
-  player.y = (canvas.height / 2) - (24 / 2);
-  map.x = player.x + player.width / 2;
-  map.y = player.y + player.height / 2;
+  player.drawX = (canvas.width / 2) - (16 / 2);
+  player.drawY = (canvas.height / 2) - (24 / 2);
+  
+  map.x = player.drawX + player.width / 2;
+  map.y = player.drawY + player.height / 2;
   gameLoop();
 }
 
