@@ -324,7 +324,7 @@ function draw() {
   drawMap();
   // プレイヤー
   if (player.speed === 2) {
-    ctx.drawImage(player.auraImg, 24*player.auraNum, 192/*64*/, 24, 32, player.drawX-4, player.drawY-8, 24, 32);
+    ctx.drawImage(player.auraImg, 24*(player.auraNum+3), /*192*/64, 24, 32, player.drawX-4, player.drawY-8, 24, 32);
   }
   ctx.drawImage(player.image, player.animationFrameX * 24, player.animationFrameY * 32, 24, 32, player.drawX - 4, player.drawY - 8, 24, 32);
   // プレイヤー座標表示
@@ -349,7 +349,7 @@ function draw() {
   );
 
   // プレイヤー判定
-  ctx.strokeStyle = 'black';
+  ctx.strokeStyle = 'lime';
   ctx.strokeRect(
     player.drawX,
     player.drawY,
