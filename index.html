@@ -18,10 +18,37 @@
     #gameCanvas {
       display: block; /* 不要な隙間を取り除くため */
     }
+    .dpad {
+      position: fixed;
+      bottom: 50px;
+      left: 50px;
+      width: 120px;
+      height: 120px;
+      display: none;
+    }
+    .dpad button {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 5px;
+    }
+    .up { top: 0; left: 40px; }
+    .left { top: 40px; left: 0; }
+    .right { top: 40px; left: 80px; }
+    .down { top: 80px; left: 40px; }
   </style>
 </head>
 <body>
   <canvas id="gameCanvas" width="350" height="600"></canvas>
+  <div id="dpad" class="dpad">
+    <button class="up" id="upButton">▲</button>
+    <button class="left" id="leftButton">◀</button>
+    <button class="right" id="rightButton">▶</button>
+    <button class="down" id="downButton">▼</button>
+  </div>
   <script src="game.js"></script>
 </body>
 </html>

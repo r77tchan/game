@@ -100,7 +100,11 @@ const keys = {
   k: false,
   j: false,
   g: false,
-  h: false
+  h: false,
+  touchUp: false,
+  touchDown: false,
+  touchLeft: false,
+  touchRight: false
 };
 
 // イベントリスナーの設定
@@ -115,6 +119,39 @@ document.addEventListener('keyup', (e) => {
     keys[e.key] = false;
   }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  const dpad = document.getElementById('dpad');
+
+  // スマホやタブレットを判定する
+  if (/Mobi|Android|iPhone|iPad|iPod|Tablet/i.test(navigator.userAgent)) {
+    dpad.style.display = 'block';
+  }
+
+  // 十字キーのイベントリスナーを追加
+  const addTouchListeners = (buttonId, keyName) => {
+    const button = document.getElementById(buttonId);
+    button.addEventListener('touchstart', () => {
+      keys[keyName] = true;
+    });
+
+    button.addEventListener('touchend', () => {
+      keys[keyName] = false;
+    });
+
+    // `touchcancel` イベントも追加して、予期しない場合でもキーを解除
+    button.addEventListener('touchcancel', () => {
+      keys[keyName] = false;
+    });
+  };
+
+  // 各ボタンにタッチイベントリスナーを追加
+  addTouchListeners('upButton', 'touchUp');
+  addTouchListeners('downButton', 'touchDown');
+  addTouchListeners('leftButton', 'touchLeft');
+  addTouchListeners('rightButton', 'touchRight');
+});
+
 
 // リサイズイベントに応じてキャンバスのサイズを変更
 window.addEventListener('resize', resizeCanvas);
