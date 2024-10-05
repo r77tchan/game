@@ -11,7 +11,7 @@ const tile = {
   point: [
     {},                                                    // 0、空
     {i:1,sx:32,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 1、木材
-    {},
+    {i:1,sx:96,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16},
     {},
     {},
     {},
@@ -32,7 +32,7 @@ const tile = {
 };
 
 const tileMap = [
-  [ 1,11,11,11,11,11,11,11,11, 0, 0, 0,11,11,11,11,11,11,11,11,12],
+  [ 2,11,11,11,11,11,11,11,11, 0, 0, 0,11,11,11,11,11,11,11,11,12],
   [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
   [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
   [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
@@ -197,8 +197,8 @@ function update() {
   } else {
     player.speed = 1;
   }
-  if (keys.ArrowUp || keys.e || keys.i || keys.touchUp) {
-    if (deadZone.y < player.drawY) {
+  if ((keys.ArrowUp || keys.e || keys.i || keys.touchUp) && tileMap[Math.floor((player.positionY-player.speed)/16)][Math.floor((player.positionX)/16)] === 1) {
+    if (deadZone.y < player.drawY-player.speed) {
       player.drawY -= player.speed;
     } else {
       map.y += player.speed;
@@ -206,8 +206,8 @@ function update() {
     player.positionY -= player.speed;
     isMovingUp = true;
   }
-  if (keys.ArrowRight || keys.f || keys.l || keys.touchRight) {
-    if (deadZone.x + deadZone.width > player.drawX + player.width) {
+  if ((keys.ArrowRight || keys.f || keys.l || keys.touchRight) && tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX+player.speed+player.width)/16)] === 1) {
+    if (deadZone.x + deadZone.width > player.drawX+player.speed + player.width) {
       player.drawX += player.speed;
     } else {
       map.x -= player.speed;
@@ -215,8 +215,8 @@ function update() {
     player.positionX += player.speed;
     isMovingRight = true;
   }
-  if (keys.ArrowLeft || keys.s || keys.j || keys.touchLeft) {
-    if (deadZone.x < player.drawX) {
+  if ((keys.ArrowLeft || keys.s || keys.j || keys.touchLeft) && tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX-player.speed)/16)] === 1) {
+    if (deadZone.x < player.drawX-player.speed) {
       player.drawX -= player.speed;
     } else {
       map.x += player.speed;
@@ -224,8 +224,8 @@ function update() {
     player.positionX -= player.speed;
     isMovingLeft = true;
   }
-  if (keys.ArrowDown || keys.d || keys.k || keys.touchDown) {
-    if (deadZone.y + deadZone.height > player.drawY + player.height) {
+  if ((keys.ArrowDown || keys.d || keys.k || keys.touchDown) && tileMap[Math.floor((player.positionY+player.speed+player.height)/16)][Math.floor((player.positionX)/16)] === 1) {
+    if (deadZone.y + deadZone.height > player.drawY+player.speed + player.height) {
       player.drawY += player.speed;
     } else {
       map.y -= player.speed;
@@ -290,7 +290,7 @@ function drawMap() {
     for (let j = 0; j < tileMap[i].length; j++) {
       let index = tileMap[i][j];
       if (index != 0) {
-        ctx.drawImage(tile['image'+tile.point[index].i], tile.point[index].sx, tile.point[index].sy, tile.point[index].sw, tile.point[index].sh, (16 * j) + tile.point[index].dx + map.x, (16 * i) + tile.point[index].dy + map.y, tile.point[index].dw, tile.point[index].dh);
+        ctx.drawImage(tile['image'+tile.point[index].i], tile.point[index].sx, tile.point[index].sy, tile.point[index].sw, tile.point[index].sh, (16 * j) + tile.point[index].dx + map.x - (16 / 2), (16 * i) + tile.point[index].dy + map.y - (24 / 2), tile.point[index].dw, tile.point[index].dh);
         if (index == 18) {
           gateX = 16 * j;
           gateY = 16 * i;
@@ -307,7 +307,7 @@ function drawMap() {
       tile.gateNum = 0;
     }
   }
-  ctx.drawImage(tile.gateImg, 28, tile.gateNum*32, 16, 32, gateX + map.x, gateY - 12 + map.y, 16, 32);
+  ctx.drawImage(tile.gateImg, 28, tile.gateNum*32, 16, 32, gateX + map.x - (16 / 2), gateY - 12 + map.y - (24 / 2), 16, 32);
   // マップ外文字
   ctx.font = '50px Arial';
   ctx.fillStyle = 'red';
@@ -327,10 +327,20 @@ function draw() {
     ctx.drawImage(player.auraImg, 24*player.auraNum, 192/*64*/, 24, 32, player.drawX-4, player.drawY-8, 24, 32);
   }
   ctx.drawImage(player.image, player.animationFrameX * 24, player.animationFrameY * 32, 24, 32, player.drawX - 4, player.drawY - 8, 24, 32);
-
-
+  // プレイヤー座標表示
+  ctx.font = '10px Arial';
+  ctx.fillStyle = 'red';
+  ctx.fillText(`px:${player.positionX}/16=${Math.floor(player.positionX/16)}`, 0, 10);
+  ctx.fillText(`py:${player.positionY}/16=${Math.floor(player.positionY/16)}`, 0, 20);
+  ctx.fillText(`dx:${player.drawX}`, 0, 40);
+  ctx.fillText(`zx:${deadZone.x}`, 0, 50);
+  ctx.fillText(`dy:${player.drawY}`, 0, 60);
+  ctx.fillText(`zy:${deadZone.y}`, 0, 70);
+  ctx.fillText(`mx:${map.x}`, 0, 90);
+  ctx.fillText(`my:${map.y}`, 0, 100);
+  
   // デッドゾーンを視覚的に描画（デバッグ用）
-  ctx.strokeStyle = 'red';
+  ctx.strokeStyle = 'black';
   ctx.strokeRect(
     deadZone.x, // 開始x
     deadZone.y, // 開始y
@@ -339,20 +349,13 @@ function draw() {
   );
 
   // プレイヤー判定
+  ctx.strokeStyle = 'black';
   ctx.strokeRect(
     player.drawX,
     player.drawY,
     player.width,
     player.height
-  )
-
-  
-
-  // ctx.font = '40px Verdana';
-  // ctx.fillStyle = 'blue';
-  // ctx.textAlign = 'center';
-  // ctx.textBaseline = 'middle';
-  // ctx.fillText('You are dead!', canvas.width / 2, canvas.height / 2);
+  );
 
 }
 
@@ -378,9 +381,9 @@ function init() {
   player.drawX = (canvas.width / 2) - (16 / 2);
   player.drawY = (canvas.height / 2) - (24 / 2);
 
-  // 現在21マス*16ピクセル / 2（真ん中）が初期位置、座標はプレイヤー左上の点になる
-  player.positionX = tileMap[0].length * 16 / 2;
-  player.positionY = tileMap.length * 16 / 2;
+  // 現在21マス*16ピクセル / 2（真ん中）が初期位置、座標はプレイヤー左上の点になる、マップ描画との兼ね合いで-プレイヤーサイズ/2
+  player.positionX = tileMap[0].length * 16 / 2 - (16 / 2);
+  player.positionY = tileMap.length * 16 / 2 - (24 / 2);
 
   // マップ描画開始座標はcanvasの中心からプレイヤー座標を引いた位置
   map.x = canvas.width / 2 - player.positionX;
