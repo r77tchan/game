@@ -100,11 +100,7 @@ const keys = {
   k: false,
   j: false,
   g: false,
-  h: false,
-  touchUp: false,
-  touchDown: false,
-  touchLeft: false,
-  touchRight: false
+  h: false
 };
 
 // イベントリスナーの設定
@@ -147,11 +143,11 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   // 各ボタンにタッチイベントリスナーを追加
-  addTouchListeners('upButton', 'touchUp');
-  addTouchListeners('downButton', 'touchDown');
-  addTouchListeners('leftButton', 'touchLeft');
-  addTouchListeners('rightButton', 'touchRight');
-  addTouchListeners('boostButton', 'g'); // ダッシュボタンは'g'キーに対応させる
+  addTouchListeners('upButton', 'e');
+  addTouchListeners('downButton', 'd');
+  addTouchListeners('leftButton', 's');
+  addTouchListeners('rightButton', 'f');
+  addTouchListeners('boostButton', 'h'); // ダッシュボタンは'h'キーに対応させる
 });
 
 
@@ -197,43 +193,51 @@ function update() {
   } else {
     player.speed = 1;
   }
-  if ((keys.ArrowUp || keys.e || keys.i || keys.touchUp) && tileMap[Math.floor((player.positionY-player.speed)/16)][Math.floor((player.positionX)/16)] === 1) {
-    if (deadZone.y < player.drawY-player.speed) {
-      player.drawY -= player.speed;
-    } else {
-      map.y += player.speed;
+  if (keys.ArrowUp || keys.e || keys.i) {
+    if (tileMap[Math.floor((player.positionY-player.speed)/16)][Math.floor((player.positionX)/16)] === 1) {
+      if (deadZone.y < player.drawY-player.speed) {
+        player.drawY -= player.speed;
+      } else {
+        map.y += player.speed;
+      }
+      player.positionY -= player.speed;
     }
-    player.positionY -= player.speed;
     isMovingUp = true;
   }
-  if ((keys.ArrowRight || keys.f || keys.l || keys.touchRight) && tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX+player.speed+player.width)/16)] === 1) {
-    if (deadZone.x + deadZone.width > player.drawX+player.speed + player.width) {
-      player.drawX += player.speed;
-    } else {
-      map.x -= player.speed;
+  if (keys.ArrowRight || keys.f || keys.l) {
+    if (tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX+player.speed+player.width)/16)] === 1) {
+      if (deadZone.x + deadZone.width > player.drawX+player.speed + player.width) {
+        player.drawX += player.speed;
+      } else {
+        map.x -= player.speed;
+      }
+      player.positionX += player.speed;
     }
-    player.positionX += player.speed;
     isMovingRight = true;
   }
-  if ((keys.ArrowLeft || keys.s || keys.j || keys.touchLeft) && tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX-player.speed)/16)] === 1) {
-    if (deadZone.x < player.drawX-player.speed) {
-      player.drawX -= player.speed;
-    } else {
-      map.x += player.speed;
+  if (keys.ArrowLeft || keys.s || keys.j) {
+    if (tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX-player.speed)/16)] === 1) {
+      if (deadZone.x < player.drawX-player.speed) {
+        player.drawX -= player.speed;
+      } else {
+        map.x += player.speed;
+      }
+      player.positionX -= player.speed;
     }
-    player.positionX -= player.speed;
     isMovingLeft = true;
   }
-  if ((keys.ArrowDown || keys.d || keys.k || keys.touchDown) && tileMap[Math.floor((player.positionY+player.speed+player.height)/16)][Math.floor((player.positionX)/16)] === 1) {
-    if (deadZone.y + deadZone.height > player.drawY+player.speed + player.height) {
-      player.drawY += player.speed;
-    } else {
-      map.y -= player.speed;
+  if (keys.ArrowDown || keys.d || keys.k) {
+    if (tileMap[Math.floor((player.positionY+player.speed+player.height)/16)][Math.floor((player.positionX)/16)] === 1) {
+      if (deadZone.y + deadZone.height > player.drawY+player.speed + player.height) {
+        player.drawY += player.speed;
+      } else {
+        map.y -= player.speed;
+      }
+      player.positionY += player.speed;
     }
-    player.positionY += player.speed;
     isMovingDown = true;
   }
-  if(isMovingUp || isMovingRight || isMovingLeft || isMovingDown) {
+  if(isMovingUp || isMovingRight || isMovingLeft) {
     player.animationCounter++;
   } else {
     switch (player.direction) {
@@ -316,7 +320,7 @@ function drawMap() {
   ctx.fillText('『Ctrl』 + 『+』で拡大推奨', map.x - 20, map.y - 20);
   ctx.fillText('移動→ESDF、IJKL', map.x - 20, map.y + tileMap.length * 16 + 30);
   ctx.fillText('加速→G、H', map.x - 20, map.y + tileMap.length * 16 + 90);
-  ctx.fillText('攻撃→V、B', map.x - 20, map.y + tileMap.length * 16 + 150);
+  ctx.fillText('攻撃→V、N', map.x - 20, map.y + tileMap.length * 16 + 150);
 }
 
 function draw() {
