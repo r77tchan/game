@@ -25,10 +25,10 @@
     .dpad {
       position: fixed;
       bottom: 50px; /* 画面の下から50ピクセルの位置に配置 */
-      left: 50%;
+      left: 35%;
       transform: translateX(-50%); /* 横方向の中央に配置するために位置を調整 */
-      width: 120px;
-      height: 160px; /* 高さを少し増やしてダッシュボタンのスペースを確保 */
+      width: 160px; /* 横の幅を少し広げる */
+      height: 160px; /* 高さも広げる */
       display: none;
     }
     .dpad button {
@@ -44,8 +44,9 @@
     .left { top: 40px; left: 0; }
     .right { top: 40px; left: 80px; }
     .down { top: 80px; left: 40px; }
-    .attack { top: 130px; left: 0px;}
-    .boost { top: 130px; left: 80px;} /* ダッシュボタンを十字ボタンの下に配置 */
+    .attack { top: 0; left: 160px; } /* Aボタンを右に配置 */
+    .boost { top: 80px; left: 160px; } /* BボタンをAの下に配置 */
+
   </style>
 </head>
 <body>
