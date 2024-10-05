@@ -5,14 +5,16 @@ const ctx = canvas.getContext('2d');
 const tile = {
   image1: null,
   image2: null,
+  image3: null,
   gateImg: null,
   gateNum: 0,
   gateTime: 0,
+  moveable: [1, 22, 3, 23],
   point: [
     {},                                                    // 0、空
     {i:1,sx:32,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 1、木材
-    {i:1,sx:96,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16},
-    {},
+    {i:1,sx:96,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 2、氷
+    {i:1,sx:64,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 3、薄石
     {},
     {},
     {},
@@ -27,32 +29,40 @@ const tile = {
     {i:2,sx: 0,sy:32,sw:16,sh: 4,dx: 0,dy: 0,dw:16,dh: 4}, // 15、下枠線
     {i:2,sx:12,sy:48,sw: 4,sh: 4,dx:12,dy: 0,dw: 4,dh: 4}, // 16、左下枠線
     {i:2,sx:12,sy:16,sw: 4,sh:16,dx:12,dy: 0,dw: 4,dh:16}, // 17、左枠線
-    {i:1,sx:32,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 18、木材、後に上からゲート
+    {i:3,sx: 0,sy: 0,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 18、左上
+    {i:3,sx: 0,sy:16,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 19、右上
+    {i:3,sx: 0,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 20、右下
+    {i:3,sx: 0,sy:48,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 21、左下
+    {i:1,sx:32,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 22、木材、後に上からゲート
+    {i:1,sx:64,sy:48,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 23、濃い石
+    {i:1,sx:64,sy:48,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 24、濃い石、後に上からバリケード
+    {i:1,sx:32,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 25、木、後に上からテーブル
+    {i:1,sx:32,sy:32,sw:16,sh:16,dx: 0,dy: 0,dw:16,dh:16}, // 26、木、後に上から白テーブル
   ]
 };
 
 const tileMap = [
-  [ 2,11,11,11,11,11,11,11,11, 0, 0, 0,11,11,11,11,11,11,11,11,12],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-  [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,18, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-  [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13],
-  [16,15,15,15,15,15,15,15,15, 0, 0, 0,15,15,15,15,15,15,15,15,14],
+  [ 2,11,11,11,11,11,11,11,11, 0, 0, 0,11,11,11,11,11,11,11,11,12, 0, 0,10,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,12],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,26, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,25, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,26, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,25, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,26, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,26,25,26,25,26,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,21,11,11,20, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,23, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,22, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,23, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,23, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,18,15,15,19, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [17, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,13, 0, 0,17, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,13],
+  [16,15,15,15,15,15,15,15,15, 0, 0, 0,15,15,15,15,15,15,15,15,14, 0, 0,16,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,14],
 ];
 
 const map = {
@@ -194,7 +204,7 @@ function update() {
     player.speed = 1;
   }
   if (keys.ArrowUp || keys.e || keys.i) {
-    if (tileMap[Math.floor((player.positionY-player.speed)/16)][Math.floor((player.positionX)/16)] === 1) {
+    if (tile.moveable.includes(tileMap[Math.floor((player.positionY-player.speed)/16)][Math.floor((player.positionX)/16)]) && tile.moveable.includes(tileMap[Math.floor((player.positionY-player.speed)/16)][Math.floor((player.positionX+player.width)/16)])) {
       if (deadZone.y < player.drawY-player.speed) {
         player.drawY -= player.speed;
       } else {
@@ -205,7 +215,7 @@ function update() {
     isMovingUp = true;
   }
   if (keys.ArrowRight || keys.f || keys.l) {
-    if (tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX+player.speed+player.width)/16)] === 1) {
+    if (tile.moveable.includes(tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX+player.speed+player.width)/16)]) && tile.moveable.includes(tileMap[Math.floor((player.positionY+player.height)/16)][Math.floor((player.positionX+player.speed+player.width)/16)]) && tile.moveable.includes(tileMap[Math.floor((player.positionY+player.height/2)/16)][Math.floor((player.positionX+player.speed+player.width)/16)])) {
       if (deadZone.x + deadZone.width > player.drawX+player.speed + player.width) {
         player.drawX += player.speed;
       } else {
@@ -216,7 +226,7 @@ function update() {
     isMovingRight = true;
   }
   if (keys.ArrowLeft || keys.s || keys.j) {
-    if (tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX-player.speed)/16)] === 1) {
+    if (tile.moveable.includes(tileMap[Math.floor((player.positionY)/16)][Math.floor((player.positionX-player.speed)/16)]) && tile.moveable.includes(tileMap[Math.floor((player.positionY+player.height)/16)][Math.floor((player.positionX-player.speed)/16)]) && tile.moveable.includes(tileMap[Math.floor((player.positionY+player.height/2)/16)][Math.floor((player.positionX-player.speed)/16)])) {
       if (deadZone.x < player.drawX-player.speed) {
         player.drawX -= player.speed;
       } else {
@@ -227,7 +237,7 @@ function update() {
     isMovingLeft = true;
   }
   if (keys.ArrowDown || keys.d || keys.k) {
-    if (tileMap[Math.floor((player.positionY+player.speed+player.height)/16)][Math.floor((player.positionX)/16)] === 1) {
+    if (tile.moveable.includes(tileMap[Math.floor((player.positionY+player.speed+player.height)/16)][Math.floor((player.positionX)/16)]) && tile.moveable.includes(tileMap[Math.floor((player.positionY+player.speed+player.height)/16)][Math.floor((player.positionX+player.width)/16)])) {
       if (deadZone.y + deadZone.height > player.drawY+player.speed + player.height) {
         player.drawY += player.speed;
       } else {
@@ -237,7 +247,7 @@ function update() {
     }
     isMovingDown = true;
   }
-  if(isMovingUp || isMovingRight || isMovingLeft) {
+  if(isMovingUp || isMovingRight || isMovingLeft || isMovingDown) {
     player.animationCounter++;
   } else {
     switch (player.direction) {
@@ -295,14 +305,21 @@ function drawMap() {
       let index = tileMap[i][j];
       if (index != 0) {
         ctx.drawImage(tile['image'+tile.point[index].i], tile.point[index].sx, tile.point[index].sy, tile.point[index].sw, tile.point[index].sh, (16 * j) + tile.point[index].dx + map.x - (16 / 2), (16 * i) + tile.point[index].dy + map.y - (24 / 2), tile.point[index].dw, tile.point[index].dh);
-        if (index == 18) {
+        if (index == 22) {
           gateX = 16 * j;
           gateY = 16 * i;
+        }
+        // テーブル
+        if (index == 25) {
+          ctx.drawImage(tile.image1, 16, 416, 16, 16, (j*16)+map.x-(16/2), (i*16)+map.y-(24/2), 16, 16);
+        }
+        if (index == 26) {
+          ctx.drawImage(tile.image1, 0, 416, 16, 16, (j*16)+map.x-(16/2), (i*16)+map.y-(24/2), 16, 16);
         }
       }
     }
   }
-  // ワープゲート
+  // ワープゲートアニメーション処理
   tile.gateTime++;
   if (tile.gateTime > 10) {
     tile.gateTime = 0;
@@ -311,6 +328,7 @@ function drawMap() {
       tile.gateNum = 0;
     }
   }
+  // ワープゲートは16*16で収まらないので、ループ内で描画すると以降のループで上書きされて埋もれてしまう
   ctx.drawImage(tile.gateImg, 28, tile.gateNum*32, 16, 32, gateX + map.x - (16 / 2), gateY - 12 + map.y - (24 / 2), 16, 32);
   // マップ外文字
   ctx.font = '50px Arial';
@@ -344,13 +362,13 @@ function draw() {
   ctx.fillText(`my:${map.y}`, 0, 100);
   
   // デッドゾーンを視覚的に描画（デバッグ用）
-  ctx.strokeStyle = 'black';
-  ctx.strokeRect(
-    deadZone.x, // 開始x
-    deadZone.y, // 開始y
-    deadZone.width, // 横幅
-    deadZone.height // 高さ
-  );
+  // ctx.strokeStyle = 'pink';
+  // ctx.strokeRect(
+  //   deadZone.x, // 開始x
+  //   deadZone.y, // 開始y
+  //   deadZone.width, // 横幅
+  //   deadZone.height // 高さ
+  // );
 
   // プレイヤー判定
   ctx.strokeStyle = 'lime';
@@ -378,6 +396,8 @@ function init() {
   tile.image1.src = 'map.png';
   tile.image2 = new Image();
   tile.image2.src = 'frame.png';
+  tile.image3 = new Image();
+  tile.image3.src = 'frame2.png';
   tile.gateImg = new Image();
   tile.gateImg.src = 'gate.png';
   resizeCanvas();
@@ -386,7 +406,7 @@ function init() {
   player.drawY = (canvas.height / 2) - (24 / 2);
 
   // 現在21マス*16ピクセル / 2（真ん中）が初期位置、座標はプレイヤー左上の点になる、マップ描画との兼ね合いで-プレイヤーサイズ/2
-  player.positionX = tileMap[0].length * 16 / 2 - (16 / 2);
+  player.positionX = 21 * 16 / 2 - (16 / 2);
   player.positionY = tileMap.length * 16 / 2 - (24 / 2);
 
   // マップ描画開始座標はcanvasの中心からプレイヤー座標を引いた位置
