@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // 十字キーのイベントリスナーを追加
   const addTouchListeners = (buttonId, keyName) => {
     const button = document.getElementById(buttonId);
-    button.addEventListener('touchstart', () => {
+    button.addEventListener('touchstart', (e) => {
       keys[keyName] = true;
       e.preventDefault(); // 長押しによる選択を防止
     });
