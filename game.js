@@ -132,15 +132,18 @@ document.addEventListener('DOMContentLoaded', function () {
   const addTouchListeners = (buttonId, keyName) => {
     const button = document.getElementById(buttonId);
     button.addEventListener('touchstart', () => {
+      e.preventDefault(); // デフォルトの選択やズームを防止
       keys[keyName] = true;
     });
 
     button.addEventListener('touchend', () => {
+      e.preventDefault(); // デフォルトの選択やズームを防止
       keys[keyName] = false;
     });
 
     // `touchcancel` イベントも追加して、予期しない場合でもキーを解除
     button.addEventListener('touchcancel', () => {
+      e.preventDefault(); // デフォルトの選択やズームを防止
       keys[keyName] = false;
     });
   };
