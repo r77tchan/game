@@ -129,8 +129,8 @@ document.addEventListener('keyup', (e) => {
 document.addEventListener('DOMContentLoaded', function () {
   const dpad = document.getElementById('dpad');
 
-  // スマホやタブレットを判定する
-  if (/Mobi|Android|iPhone|iPad|iPod|Tablet/i.test(navigator.userAgent)) {
+  // モバイルやタブレットを判定し、iPadやAndroidタブレットも含める
+  if (navigator.maxTouchPoints > 0 || /Mobi|Android|iPhone|iPad|iPod|Tablet/i.test(navigator.userAgent)) {
     dpad.style.display = 'block';
   }
 
