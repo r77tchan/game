@@ -151,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
   addTouchListeners('downButton', 'touchDown');
   addTouchListeners('leftButton', 'touchLeft');
   addTouchListeners('rightButton', 'touchRight');
+  addTouchListeners('boostButton', 'g'); // ダッシュボタンは'g'キーに対応させる
 });
 
 

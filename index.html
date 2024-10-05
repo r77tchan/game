@@ -28,7 +28,7 @@
       left: 50%;
       transform: translateX(-50%); /* 横方向の中央に配置するために位置を調整 */
       width: 120px;
-      height: 120px;
+      height: 160px; /* 高さを少し増やしてダッシュボタンのスペースを確保 */
       display: none;
     }
     .dpad button {
@@ -36,7 +36,7 @@
       width: 40px;
       height: 40px;
       font-size: 24px;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.8);
       border: none;
       border-radius: 5px;
     }
@@ -44,6 +44,8 @@
     .left { top: 40px; left: 0; }
     .right { top: 40px; left: 80px; }
     .down { top: 80px; left: 40px; }
+    .attack { top: 130px; left: 0px;}
+    .boost { top: 130px; left: 80px;} /* ダッシュボタンを十字ボタンの下に配置 */
   </style>
 </head>
 <body>
@@ -53,6 +55,8 @@
     <button class="left" id="leftButton">◀</button>
     <button class="right" id="rightButton">▶</button>
     <button class="down" id="downButton">▼</button>
+    <button class="attack" id="attackButton">A</button>
+    <button class="boost" id="boostButton">B</button>
   </div>
   <script src="game.js"></script>
 </body>
