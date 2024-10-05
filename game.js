@@ -133,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const button = document.getElementById(buttonId);
     button.addEventListener('touchstart', () => {
       keys[keyName] = true;
+      e.preventDefault(); // 長押しによる選択を防止
     });
 
     button.addEventListener('touchend', () => {
