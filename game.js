@@ -195,7 +195,7 @@ function update() {
   } else {
     player.speed = 1;
   }
-  if (keys.ArrowUp || keys.e || keys.i) {
+  if (keys.ArrowUp || keys.e || keys.i || keys.touchUp) {
     if (deadZone.y < player.drawY) {
       player.drawY -= player.speed;
     } else {
@@ -204,7 +204,7 @@ function update() {
     player.positionY -= player.speed;
     isMovingUp = true;
   }
-  if (keys.ArrowRight || keys.f || keys.l) {
+  if (keys.ArrowRight || keys.f || keys.l || keys.touchRight) {
     if (deadZone.x + deadZone.width > player.drawX + player.width) {
       player.drawX += player.speed;
     } else {
@@ -213,7 +213,7 @@ function update() {
     player.positionX += player.speed;
     isMovingRight = true;
   }
-  if (keys.ArrowLeft || keys.s || keys.j) {
+  if (keys.ArrowLeft || keys.s || keys.j || keys.touchLeft) {
     if (deadZone.x < player.drawX) {
       player.drawX -= player.speed;
     } else {
@@ -222,7 +222,7 @@ function update() {
     player.positionX -= player.speed;
     isMovingLeft = true;
   }
-  if (keys.ArrowDown || keys.d || keys.k) {
+  if (keys.ArrowDown || keys.d || keys.k || keys.touchDown) {
     if (deadZone.y + deadZone.height > player.drawY + player.height) {
       player.drawY += player.speed;
     } else {
