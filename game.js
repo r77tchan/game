@@ -237,18 +237,33 @@ const logic = {
   },
   draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    PC.speed = (keys.isGroupPressed('boost')) ? 2 : 1;
     if (keys.isGroupPressed('moveUp')) {
-      PC.dy -= 1;
+      PC.dy -= PC.speed;
     }
     if (keys.isGroupPressed('moveRight')) {
-      PC.dx += 1;
+      PC.dx += PC.speed;
     }
     if (keys.isGroupPressed('moveDown')) {
-      PC.dy += 1;
+      PC.dy += PC.speed;
     }
     if (keys.isGroupPressed('moveLeft')) {
-      PC.dx -= 1;
+      PC.dx -= PC.speed;
     }
+    // プレイヤー描画
     ctx.strokeRect(PC.dx,PC.dy,PC.width,PC.height);
+    // 中心線描画
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height / 2);
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(canvas.width / 2, 0);
+    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.stroke();
+    ctx.beginPath();
+
   }
 };
