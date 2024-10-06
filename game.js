@@ -100,6 +100,12 @@ const player = {
   animationCounter: 0,
   animationDelay: 10,
   direction: 'down',
+  attackImg: null,
+  attack: [
+    {state: false, x: 0, y: 0, time: 0, direction: ''},
+    {state: false, x: 0, y: 0, time: 0, direction: ''},
+    {state: false, x: 0, y: 0, time: 0, direction: ''}
+  ],
 };
 
 const keys = {
@@ -116,17 +122,31 @@ const keys = {
   k: false,
   j: false,
   g: false,
-  h: false
+  h: false,
+  nvPressed: false,
+  nvHandled: false
 };
 
 // イベントリスナーの設定
 document.addEventListener('keydown', (e) => {
+  if (e.key == 'n' || e.key == 'v') {
+    if (!keys['nvPressed']) {
+      keys['nvPressed'] = true;
+      keys['nvHandled'] = false;
+    }
+    return;
+  }
   if (keys.hasOwnProperty(e.key)) {
     keys[e.key] = true;
   }
 });
 
 document.addEventListener('keyup', (e) => {
+  if (e.key == 'n' || e.key == 'v') {
+    keys['nvPressed'] = false;
+    keys['nvHandled'] = false;
+    return;
+  }
   if (keys.hasOwnProperty(e.key)) {
     keys[e.key] = false;
   }
@@ -163,7 +183,8 @@ document.addEventListener('DOMContentLoaded', function () {
   addTouchListeners('downButton', 'd');
   addTouchListeners('leftButton', 's');
   addTouchListeners('rightButton', 'f');
-  addTouchListeners('boostButton', 'h'); // ダッシュボタンは'h'キーに対応させる
+  addTouchListeners('boostButton', 'h');
+  addTouchListeners('attackButton', 'n');
 });
 
 
@@ -300,7 +321,6 @@ function update() {
     player.direction = 'down'
   }
   
-  
 }
 
 function drawMap() {
@@ -350,11 +370,55 @@ function drawMap() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawMap();
-  // プレイヤー
+  // ダッシュオーラ描画
   if (player.speed === 2) {
     ctx.drawImage(player.auraImg, 24*(player.auraNum+3), /*192*/64, 24, 32, player.drawX-4, player.drawY-8, 24, 32);
   }
+  // プレイヤー描画
   ctx.drawImage(player.image, player.animationFrameX * 24, player.animationFrameY * 32, 24, 32, player.drawX - 4, player.drawY - 8, 24, 32);
+  // プレイヤー攻撃
+  if (keys.nvPressed && !keys.nvHandled) {  
+    keys.nvHandled = true;  
+    let index = -1;
+    for (let i = 0; i < player.attack.length; i++) {
+      if (player.attack[i].state === false) {
+        index = i;
+        break;
+      }
+    }
+    if (index !== -1) {
+      player.attack[index].state = true;
+      player.attack[index].time = 50;
+      player.attack[index].x = player.positionX + player.width;
+      player.attack[index].y = player.positionY + player.height / 2;
+    }
+  }
+  for (let i = 0; i < player.attack.length; i++) {
+    if (player.attack[i].state === true) {
+      player.attack[i].time -= 1;
+      if (player.attack[i].time <= 0) {
+        player.attack[i].state = false;
+        break;
+      }
+      // player.attack[i].x += 3;
+      let sx, sy, sw, sh, dx, dy, dw, dh;
+      sx = 24 * 1 + 4;
+      sy = 32 * 1 + 20;
+      sw = 16;
+      sh = 8;
+      dx = map.x + player.attack[i].x;
+      dy = map.y + player.attack[i].y;
+      dw = 16;
+      dh = 8;
+      ctx.drawImage(player.attackImg,sx,sy,sw,sh,dx,dy,dw,dh);
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 0.1;
+      ctx.strokeRect(dx,dy,dw,dh);
+      // ここがポイント！プレイヤー座標＋マップ開始位置でプレイヤー描画位置の左上であってほしいかな？
+      ctx.strokeRect(player.positionX+map.x,player.positionY+map.y,200,200);
+    }
+  }
+  
   // プレイヤー座標表示
   ctx.font = '10px Arial';
   ctx.fillStyle = 'red';
@@ -369,21 +433,13 @@ function draw() {
   
   // デッドゾーンを視覚的に描画（デバッグ用）
   // ctx.strokeStyle = 'pink';
-  // ctx.strokeRect(
-  //   deadZone.x, // 開始x
-  //   deadZone.y, // 開始y
-  //   deadZone.width, // 横幅
-  //   deadZone.height // 高さ
-  // );
+  // ctx.lineWidth = 0.1;
+  // ctx.strokeRect(deadZone.x,deadZone.y,deadZone.width,deadZone.height);
 
   // プレイヤー判定
   ctx.strokeStyle = 'lime';
-  ctx.strokeRect(
-    player.drawX,
-    player.drawY,
-    player.width,
-    player.height
-  );
+  ctx.lineWidth = 0.1;
+  ctx.strokeRect(player.drawX,player.drawY,player.width,player.height);
 
 }
 
@@ -398,6 +454,8 @@ function init() {
   player.image.src = 'player.png';
   player.auraImg = new Image();
   player.auraImg.src = 'aura.png';
+  player.attackImg = new Image();
+  player.attackImg.src = 'attack1.png';
   tile.image1 = new Image();
   tile.image1.src = 'map.png';
   tile.image2 = new Image();
