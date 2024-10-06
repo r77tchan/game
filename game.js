@@ -2,6 +2,12 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// ctx.imageSmoothingEnabled = false;
+// ctx.webkitImageSmoothingEnabled = false;
+// ctx.mozImageSmoothingEnabled = false;
+// ctx.msImageSmoothingEnabled = false;
+
+
 const tile = {
   image1: null,
   image2: null,
