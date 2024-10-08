@@ -42,24 +42,24 @@
       border: none;
       border-radius: 5px;
     }
+    .boost { top: 80px; left: 160px; } /* BボタンをAの下に配置 */
     .up { top: 0; left: 40px; }
     .left { top: 40px; left: 0; }
     .right { top: 40px; left: 80px; }
     .down { top: 80px; left: 40px; }
     .attack { top: 0; left: 160px; } /* Aボタンを右に配置 */
-    .boost { top: 80px; left: 160px; } /* BボタンをAの下に配置 */
 
   </style>
 </head>
 <body>
   <canvas id="gameCanvas" width="350" height="600"></canvas>
   <div id="dpad" class="dpad">
+    <button class="boost" id="boostButton">B</button>
     <button class="up" id="upButton">▲</button>
     <button class="left" id="leftButton">◀</button>
     <button class="right" id="rightButton">▶</button>
     <button class="down" id="downButton">▼</button>
     <button class="attack" id="attackButton">A</button>
-    <button class="boost" id="boostButton">B</button>
   </div>
   <script src="game.js"></script>
 </body>

@@ -87,7 +87,6 @@ class BasePlayer {
     this.dy = dy;
     this.width = 16;
     this.height = 24;
-    this.speed = 1;
     this.auraNum = 0;
     this.auraTime = 0;
     this.aniSX = 0;
@@ -100,12 +99,126 @@ class BasePlayer {
 class LocalPlayer extends BasePlayer {
   constructor(id) {
     super(id, (21*16)/2-8, (21*16)/2-12, 0, 0, 'down'); // 初期座標設定。左上が起点だが、表示は中心にしたいのでサイズの半分引いているが、そもそも初期位置は好きに決めていいのでさほど重要ではない。一応これは、16ピクセルのブロックが上下に21あって、その中心。
+    this.speed = 1;
     this.attack = [
       {state: false, x: 0, y: 0, time: 0, direction: ''},
     ];
   }
+  noInput() {
+
+  }
+  pressInput(input) {
+    switch (input) {
+      case 'boost': {
+        this.speed = 2;
+        this.auraTime = (this.auraTime + 1) % 11; // 0~10循環
+        if (this.auraTime === 0) {
+          this.auraNum = (this.auraNum + 1) % 3; // 0~2循環
+        }
+        break;
+      }
+      case 'moveUp': {
+        const nextY = Math.floor((this.py-this.speed) / 16);
+        const nowX1 = Math.floor((this.px) / 16);
+        const nowX2 = Math.floor((this.px+this.width) / 16);        
+        if (map.movable.includes(map.data[nextY][nowX1]) && map.movable.includes(map.data[nextY][nowX2])) {
+          if (deadZone.y < this.dy-this.speed) {
+            this.dy -= this.speed;
+          } else {
+            map.y += this.speed;
+          }
+          this.py -= this.speed;
+        }
+        this.aniSY = 0;
+        this.direction = 'up';
+        break;
+      }
+      case 'moveRight': {
+        const nextX = Math.floor((this.px+this.speed+this.width) / 16);
+        const nowY1 = Math.floor((this.py) / 16);
+        const nowY2 = Math.floor((this.py+this.height) / 16);
+        const nowY3 = Math.floor((this.py+(this.height/2)) / 16); // プレイヤー高さ24、マップ高さ16なので、第三の判定としてYの中央（ないと真ん中すり抜ける）
+        if (map.movable.includes(map.data[nowY1][nextX]) && map.movable.includes(map.data[nowY2][nextX]) && map.movable.includes(map.data[nowY3][nextX])) {
+          if (deadZone.x+deadZone.width > this.dx+this.speed+this.width) {
+            this.dx += this.speed;
+          } else {
+            map.x -= this.speed;
+          }
+          this.px += this.speed;
+        }
+        this.aniSY = 1;
+        this.direction = 'right';
+        break;
+      }
+      case 'moveDown': {
+        const nextY = Math.floor((this.py+this.speed+this.height) / 16);
+        const nowX1 = Math.floor((this.px) / 16);
+        const nowX2 = Math.floor((this.px+this.width) / 16); 
+        if (map.movable.includes(map.data[nextY][nowX1]) && map.movable.includes(map.data[nextY][nowX2])) {
+          if (deadZone.y+deadZone.height > this.dy+this.speed+this.height) {
+            this.dy += this.speed;
+          } else {
+            map.y -= this.speed;
+          }
+          this.py += this.speed;
+        }
+          this.aniSY = 2;
+          this.direction = 'down';
+          break;
+      }
+      case 'moveLeft': {
+        const nextX = Math.floor((this.px-this.speed) / 16);
+        const nowY1 = Math.floor((this.py) / 16);
+        const nowY2 = Math.floor((this.py+this.height) / 16);
+        const nowY3 = Math.floor((this.py+(this.height/2)) / 16);
+        if (map.movable.includes(map.data[nowY1][nextX]) && map.movable.includes(map.data[nowY2][nextX]) && map.movable.includes(map.data[nowY3][nextX])) {
+          if (deadZone.x < this.dx-this.speed) {
+            this.dx -= this.speed;
+          } else {
+            map.x += this.speed;  
+          }
+          this.px -= this.speed;
+        }
+        this.aniSY = 3;
+        this.direction = 'left';
+        break;
+      }
+      case 'attack': {
+
+        break;
+      }
+    }
+  }
   handleInput(input) {
 
+  }
+  moving() {
+    this.aniTime++;
+    // 右足左足、切り替え
+    if (this.aniTime > 10) {
+      this.aniSX = this.aniSX === 0 ? 2 : 0;
+      this.aniTime = 0;
+    }
+  }
+  stopping() {
+    switch (this.direction) {
+      case 'up':
+        this.aniSX = 1;
+        this.aniSY = 0;
+        break;
+      case 'right':
+        this.aniSX = 1;
+        this.aniSY = 1;
+        break;
+      case 'down':
+        this.aniSX = 1;
+        this.aniSY = 2;
+        break;
+      case 'left':
+        this.aniSX = 1;
+        this.aniSY = 3;
+        break;
+    }
   }
 }
 
@@ -120,16 +233,16 @@ class RemotePlayer extends BasePlayer {
 
 const keys = {
   groups: {
+    boost: ['h', 'g', 'boostButton'],
     moveUp: ['ArrowUp', 'e', 'i', 'upButton'],
     moveRight: ['ArrowRight', 'f', 'l', 'rightButton'],
     moveDown: ['ArrowDown', 'd', 'k', 'downButton'],
     moveLeft: ['ArrowLeft', 's', 'j', 'leftButton'],
     attack: ['n', 'v', 'attackButton'],
-    boost: ['h', 'g', 'boostButton'],
   },
   states: {},
   addTouchListeners(buttonId, groupKey) {
-    const button = document.getElementById(buttonId);
+    const button = document.getElementById(buttonId); // タッチ用リスナ
     if (button) {
       button.addEventListener('touchstart', (e) => {
         if (!this.states[buttonId].pressed) {
@@ -191,12 +304,12 @@ document.addEventListener('DOMContentLoaded', function () {
     dpad.style.display = 'block';
   }
   // 各ボタンにタッチイベントリスナーを追加
+  keys.addTouchListeners('boostButton', 'boost');
   keys.addTouchListeners('upButton', 'moveUp');
   keys.addTouchListeners('rightButton', 'moveRight');
   keys.addTouchListeners('downButton', 'moveDown');
   keys.addTouchListeners('leftButton', 'moveLeft');
   keys.addTouchListeners('attackButton', 'attack');
-  keys.addTouchListeners('boostButton', 'boost');
   // リサイズイベントに応じてキャンバスのサイズを変更
   window.addEventListener('resize', logic.resizeCanvas);
   
@@ -238,105 +351,26 @@ const logic = {
     // 更新処理
     map.gateTime = (map.gateTime + 1) % 11; // 0~10循環
     map.gateNum = map.gateTime === 0 ? (map.gateNum + 1) % 4 : map.gateNum; // 0なら0~3循環、まだならそのまま
-    PC.speed = (keys.isGroupPressed('boost')) ? 2 : 1;
-    if (keys.isGroupPressed) {
-      PC.auraTime = (PC.auraTime + 1) % 11; // 0~10循環
-      if (PC.auraTime === 0) {
-        PC.auraNum = (PC.auraNum + 1) % 3; // 0~2循環
-      }
-    }
 
-    
-    // 座標更新
-    if (keys.isGroupPressed('moveUp')) {
-      if (deadZone.y < PC.dy-PC.speed) {
-        PC.dy -= PC.speed;
-      } else {
-        map.y += PC.speed;
-      }
-      PC.py -= PC.speed;
-    }
-    if (keys.isGroupPressed('moveRight')) {
-      if (deadZone.x+deadZone.width > PC.dx+PC.speed+PC.width) {
-        PC.dx += PC.speed;
-      } else {
-        map.x -= PC.speed;
-      }
-      PC.px += PC.speed;
-    }
-    if (keys.isGroupPressed('moveDown')) {
-      if (deadZone.y+deadZone.height > PC.dy+PC.speed+PC.height) {
-        PC.dy += PC.speed;
-      } else {
-        map.y -= PC.speed;
-      }
-      PC.py += PC.speed;
-    }
-    if (keys.isGroupPressed('moveLeft')) {
-      if (deadZone.x < PC.dx-PC.speed) {
-        PC.dx -= PC.speed;
-      } else {
-        map.x += PC.speed;  
-      }
-      PC.px -= PC.speed;
-    }
-
-    // 移動中ならアニメ時間加算、静止中なら方向に合わせて切り取り位置セット
-    if (keys.isGroupPressed('moveUp') || keys.isGroupPressed('moveRight') || keys.isGroupPressed('moveDown') || keys.isGroupPressed('moveLeft')) {
-      PC.aniTime++;
+    // キー入力処理
+    if (!Object.keys(keys.groups).some(key => keys.isGroupPressed(key))) {
+      PC.noInput();
+      PC.stopping();
     } else {
-      switch (PC.direction) {
-        case 'up':
-          PC.aniSX = 1;
-          PC.aniSY = 0;
-          break;
-        case 'right':
-          PC.aniSX = 1;
-          PC.aniSY = 1;
-          break;
-        case 'down':
-          PC.aniSX = 1;
-          PC.aniSY = 2;
-          break;
-        case 'left':
-          PC.aniSX = 1;
-          PC.aniSY = 3;
-          break;
+      Object.keys(keys.groups).forEach((key) => { // 押されてるキー数分、各引数で関数呼び出し
+        if (keys.isGroupPressed(key)) {
+          PC.pressInput(key);
+        }
+        if (keys.isGroupHandled(key)) {
+          PC.handleInput(key);
+        }
+      });
+      if (['moveUp', 'moveRight', 'moveDown', 'moveLeft'].some(tmp => keys.isGroupPressed(tmp))) { // 4つのうちいずれか押されてる
+        PC.moving();
+      } else {
+        PC.stopping();
       }
     }
-
-
-
-    // 右足左足、切り替え
-    if (PC.aniTime > 10) {
-      PC.aniSX = PC.aniSX === 0 ? 2 : 0;
-      PC.aniTime = 0;
-    }
-
-
-    // 移動中なら方向に合わせて切り取り位置と方向セット
-    if (keys.isGroupPressed('moveUp')) {
-      PC.aniSY = 0;
-      PC.direction = 'up';
-    }
-    if (keys.isGroupPressed('moveRight')) {
-      PC.aniSY = 1;
-      PC.direction = 'right';
-    }
-    if (keys.isGroupPressed('moveDown')) {
-      PC.aniSY = 2;
-      PC.direction = 'down';
-    }
-    if (keys.isGroupPressed('moveLeft')) {
-      PC.aniSY = 3;
-      PC.direction = 'left';
-    }
-
-
-
-
-
-
 
 
 
@@ -353,7 +387,7 @@ const logic = {
           let info;
           if ([22,25,26].includes(index)) { // 後から描画するオブジェクト
             obj.push({index:index, dx:(16*j), dy:(16*i)});
-            info = map.tile[map.tile[index].refe];
+            info = map.tile[map.tile[index].refe]; // 参照先情報(下タイル)
           } else {
             info = map.tile[index];
           }
@@ -371,6 +405,7 @@ const logic = {
     if (PC.speed === 2) {
       ctx.drawImage(img.aura1, 24*(PC.auraNum+3), 64, 24, 32, PC.dx-4, PC.dy-4, 24, 32); // プレイヤー16,24、オーラ24,32の共にサイズ8px差なので4pxマイナスすれば中央になる
     }
+    PC.speed = 1;
     // プレイヤー描画
     ctx.drawImage(img.character1, PC.aniSX*24, PC.aniSY*32, 24, 32, PC.dx-4, PC.dy-8, 24, 32); // character1.pngは24*32ずつで並んでいるのでこのサイズで切り取っているが、画像の左4px、右8pxは余分なので、描画はx-4、y-8の位置から開始する（結果プレイヤーサイズは16*24だが、余白分、例えば髪の毛が上にはみ出ても描画はされてる。お得。）
 
@@ -385,6 +420,7 @@ const logic = {
       // logic.debug.deadZone_border();
       // logic.debug.center_line();
       logic.debug.coordinate_display();
+      logic.debug.outside_char();
     },
     PC_draw_border() {
       // プレイヤー枠線描画
@@ -428,6 +464,17 @@ const logic = {
       ctx.fillText(`cy:${canvas.height / 2}`, 0, 130);
       // ctx.fillText(`xxx:${xxx}`, 0, 150);
       // ctx.fillText(`xxx:${xxx}`, 0, 160);
+    },
+    outside_char() {
+      // マップ外文字
+      ctx.font = '50px Arial';
+      ctx.fillStyle = 'red';
+      ctx.fillText('gg.mh4.jp', map.x+60, map.y-60);
+      ctx.font = '30px Arial';
+      ctx.fillText('『Ctrl』 + 『+』で拡大推奨', map.x-10, map.y-10);
+      ctx.fillText('移動→ESDF、IJKL', map.x-20, map.y+map.tile.length*16-70);
+      ctx.fillText('加速→G、H', map.x-20, map.y+map.tile.length*16-30);
+      ctx.fillText('攻撃→V、N', map.x-20, map.y+map.tile.length*16+10);
     },
   },
 };
