@@ -8,7 +8,7 @@ const map = {
   gateTime: 0,
   movable: [1, 22, 3, 23],
   tile: [
-    {},                                                                     // 0、空
+    {},                                                                       // 0、空
     {src:1,type:0,refe: 0,sx:32,sy: 32,sw:16,sh:16,dx: 0,dy:  0,dw:16,dh:16}, // 1、木材
     {src:1,type:0,refe: 0,sx:96,sy: 32,sw:16,sh:16,dx: 0,dy:  0,dw:16,dh:16}, // 2、氷
     {src:1,type:0,refe: 0,sx:64,sy: 32,sw:16,sh:16,dx: 0,dy:  0,dw:16,dh:16}, // 3、薄石
