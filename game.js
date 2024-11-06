@@ -1,21 +1,12 @@
-let dbData = {};
-let appData = {};
-let sesData = {};
 
-// Java側で、selectAllの結果がnullじゃないなら、
-// parseして代入
 /*
-<% if (str) { %>
-dbData = JSON.parse(<%= str %>);
-<% } %>
-*/
-
-// テスト(解析後を想定)
+テスト(解析後を想定)
 const objData = {
   名前: [['grimReaper', 835, 425, 7],['whiteKnight', 467, 527, 10]],
 }
 dbData = objData;
 appData = objData;
+*/
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
@@ -216,7 +207,7 @@ function draw() {
       removeSelectedClass();
       selected--;
       if (selected <= -1) {
-        selected = formNum-1; 
+        selected = formNum-1;
       }
       addSelectedClass();
     }
@@ -224,7 +215,7 @@ function draw() {
       removeSelectedClass();
       selected++;
       if (selected > formNum-1) {
-        selected = 0; 
+        selected = 0;
       }
       addSelectedClass();
     }
@@ -302,7 +293,7 @@ function draw() {
     ctx.drawImage(img['monster'+type.img], baseX+type.imgW, baseY+type.imgH*2, type.imgW, type.imgH, monster[1]-384-type.dx+16, monster[2]-16-type.dy+16, type.imgW, type.imgH);
     if (i === selected) {
       ctx.strokeStyle = 'red';
-      ctx.lineWidth = 2;      
+      ctx.lineWidth = 2;
       ctx.strokeRect(monster[1]-384+16, monster[2]-16+16, type.width, type.height);
     }
     ctx.font = '10px Arial';
@@ -439,14 +430,14 @@ function addMonster(type, x, y, hp) {
       </label>
 
       <img class="mns-img" src="images/${type}.png" alt="${type}">
-        
+
 
       <div class="tap-button-container">
         <span class="tap-button delete-target" onclick="deleteThisForm(this)">削除(C)</span>
         <span class="selected select-target" onclick="selectESDF(this)">selected(VB)</span>
       </div>
 
-      
+
     </div>
   `;
 
@@ -467,7 +458,7 @@ function addMonster(type, x, y, hp) {
 }
 
 function updateType(selectElement) {
-  const mnsCurrent = selectElement.closest('.mns');    
+  const mnsCurrent = selectElement.closest('.mns');
   const image = mnsCurrent.querySelector('.mns-img');
   if (image) {
     const selectedType = selectElement.value;
@@ -477,7 +468,7 @@ function updateType(selectElement) {
   const mnsAll = document.querySelectorAll('.mns');
   const index = Array.from(mnsAll).indexOf(mnsCurrent);
   MNS.monsters[index][0] = selectElement.value;
-  
+
 }
 function deleteThisForm(selectElement) {
   removeSelectedClass();
@@ -549,7 +540,7 @@ function addSelectedClass() {
   newSelected.classList.remove('tap-button');
   newSelected.classList.add('selected');
   newSelected.previousElementSibling.textContent = '削除(C)';
-  
+
   const mnsTarget = document.querySelectorAll('.mns')[selected];
   mnsTarget.classList.add('mnsSelected');
 }
@@ -591,10 +582,10 @@ document.querySelectorAll('.submit button').forEach(button => {
             const formDataClass = mnsClass[i].querySelectorAll('.form-data');
             formData.push([formDataClass[0].value, formDataClass[1].value, formDataClass[2].value, formDataClass[3].value]);
           }
-          
+
           localData[name.value] = formData;
           localStorage.setItem('setData', JSON.stringify(localData));
-          
+
           location.reload(true);
         }
         break;
@@ -604,7 +595,7 @@ document.querySelectorAll('.submit button').forEach(button => {
 
 function DataDelete(selectElement) {
   // 1つ前の兄弟要素のテキストコンテントがキー名
-  const keyName = selectElement.previousElementSibling.textContent;  
+  const keyName = selectElement.previousElementSibling.textContent;
   if (!confirm(`削除？対象:「${keyName}」`)) {
     return;
   }
@@ -622,14 +613,14 @@ function DataDelete(selectElement) {
 }
 function DataLoad(selectElement) {
   // 2つ前の兄弟要素のテキストコンテントがキー名
-  const keyName = selectElement.previousElementSibling.previousElementSibling.textContent;  
+  const keyName = selectElement.previousElementSibling.previousElementSibling.textContent;
   if (!confirm(`読み込み？対象:「${keyName}」`)) {
     return;
   }
   // 所持しているクラスで分岐
   let targetData = [[]];
   if (selectElement.classList.contains('dbDataLoad')) {
-    targetData = dbData[keyName];    
+    targetData = dbData[keyName];
   } else if (selectElement.classList.contains('appDataLoad')) {
     targetData = appData[keyName];
   } else if (selectElement.classList.contains('sesDataLoad')) {
