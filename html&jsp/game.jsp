@@ -64,27 +64,42 @@
     <button class="attack" id="attackButton">A</button>
   </div>
   <script>
-      let dbData = {};
-      let appData = {};
-      let sesData = {};
-      let reqData = {};
-      <% String dbData = (String)request.getAttribute("dbData"); %>
-      <% String appData = (String)request.getAttribute("appData"); %>
-      <% String sesData = (String)request.getAttribute("sesData"); %>
-      <% String reqData = (String)request.getAttribute("reqData"); %>
-      <% if (dbData != null) { %>
-      dbData = JSON.parse('<%= dbData %>');
-      <% } %>
-      <% if (appData != null) { %>
-      appData = JSON.parse('<%= appData %>');
-      <% } %>
-      <% if (sesData != null) { %>
-      sesData = JSON.parse('<%= sesData %>');
-      <% } %>
-      <% if (reqData != null) { %>
-      reqData = JSON.parse('<%= reqData %>');
-      <% } %>
-    </script>
+    const setData = {};
+
+    let dbData = {};
+    let appData = {};
+    let sesData = {};
+    let reqData = {};
+    <% String dbData = (String)request.getAttribute("dbData"); %>
+    <% String appData = (String)request.getAttribute("appData"); %>
+    <% String sesData = (String)request.getAttribute("sesData"); %>
+    <% String reqData = (String)request.getAttribute("reqData"); %>
+    <% if (dbData != null) { %>
+    dbData = JSON.parse('<%= dbData %>');
+    <% } %>
+    <% if (appData != null) { %>
+    appData = JSON.parse('<%= appData %>');
+    <% } %>
+    <% if (sesData != null) { %>
+    sesData = JSON.parse('<%= sesData %>');
+    <% } %>
+    <% if (reqData != null) { %>
+    reqData = JSON.parse('<%= reqData %>');
+    <% } %>
+
+    Object.keys(dbData).forEach(dataName => {
+      setData[dataName] = dbData[dataName];
+    });
+    Object.keys(appData).forEach(dataName => {
+      setData[dataName] = appData[dataName];
+    });
+    Object.keys(sesData).forEach(dataName => {
+      setData[dataName] = sesData[dataName];
+    });
+    Object.keys(reqData).forEach(dataName => {
+      setData[dataName] = reqData[dataName];
+    });
+  </script>
   <script src="js/game.js"></script>
 </body>
 </html>
