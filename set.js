@@ -1,3 +1,22 @@
+let dbData = {};
+let appData = {};
+let sesData = {};
+
+// Java側で、selectAllの結果がnullじゃないなら、
+// parseして代入
+/*
+<% if (str) { %>
+dbData = JSON.parse(<%= str %>);
+<% } %>
+*/
+
+// テスト(解析後を想定)
+const objData = {
+  名前: [['grimReaper', 835, 425, 7],['whiteKnight', 467, 527, 10]],
+}
+dbData = objData;
+appData = objData;
+
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -144,6 +163,7 @@ const MNS = {
 let formNum = 0;
 let speed = 1;
 let selected = -1;
+let localData = {};
 
 
 
@@ -328,15 +348,27 @@ document.addEventListener('DOMContentLoaded', () => {
     slider.value = localStorage.getItem('slider');
     document.querySelector('canvas').style.width = `${slider.value}%`;
   }
+  // Java側から代入された内容表示
+  Object.keys(dbData).forEach(dataName => {
+    const insertTarget = document.getElementsByClassName('storage-ul')[0];
+    insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button dbDataDelete" onclick="DataDelete(this)">削除</span><span class="tap-button dbDataLoad" onclick="DataLoad(this)">読み込み</span></li>`);
+  });
+  Object.keys(appData).forEach(dataName => {
+    const insertTarget = document.getElementsByClassName('storage-ul')[1];
+    insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button appDataDelete" onclick="DataDelete(this)">削除</span><span class="tap-button appDataLoad" onclick="DataLoad(this)">読み込み</span></li>`);
+  });
+  Object.keys(sesData).forEach(dataName => {
+    const insertTarget = document.getElementsByClassName('storage-ul')[0];
+    insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button sesDataDelete" onclick="DataDelete(this)">削除</span><span class="tap-button sesDataLoad" onclick="DataLoad(this)">読み込み</span></li>`);
+  });
   // ローカルストレージ内容表示
   if (localStorage.getItem('setData')) {
-    const setData = JSON.parse(localStorage.getItem('setData'));
+    localData = JSON.parse(localStorage.getItem('setData'));
     const insertTarget = document.getElementsByClassName('storage-ul')[3];
 
-    Object.keys(setData).forEach(dataName => {
-      insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button localStorageDelete" onclick="localStorageDelete(this)">削除</span><span class="tap-button localStorageLoad" onclick="localStorageLoad(this)">読み込み</span></li>`);
+    Object.keys(localData).forEach(dataName => {
+      insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button localDataDelete" onclick="DataDelete(this)">削除</span><span class="tap-button localDataLoad" onclick="DataLoad(this)">読み込み</span></li>`);
     });
-    
   }
   draw();
 });
@@ -560,14 +592,8 @@ document.querySelectorAll('.submit button').forEach(button => {
             formData.push([formDataClass[0].value, formDataClass[1].value, formDataClass[2].value, formDataClass[3].value]);
           }
           
-          let setData = localStorage.getItem('setData');
-          if (setData) {
-            setData = JSON.parse(setData);
-          } else {
-            setData = {};
-          }
-          setData[name.value] = formData;
-          localStorage.setItem('setData', JSON.stringify(setData));
+          localData[name.value] = formData;
+          localStorage.setItem('setData', JSON.stringify(localData));
           
           location.reload(true);
         }
@@ -576,34 +602,50 @@ document.querySelectorAll('.submit button').forEach(button => {
   });
 });
 
-
-function localStorageDelete(selectElement) {
-  // 1つ前の兄弟要素のテキストコンテントをキーにしてローカルストレージから削除
+function DataDelete(selectElement) {
+  // 1つ前の兄弟要素のテキストコンテントがキー名
   const keyName = selectElement.previousElementSibling.textContent;  
-  if (window.confirm(`削除？対象:「${keyName}」`)) {
-    let setData = JSON.parse(localStorage.getItem('setData') || '{}');
-    delete setData[keyName];
-    localStorage.setItem('setData', JSON.stringify(setData));
+  if (!confirm(`削除？対象:「${keyName}」`)) {
+    return;
+  }
+  // 所持しているクラスで分岐
+  if (selectElement.classList.contains('localDataDelete')) {
+    delete localData[keyName];
+    localStorage.setItem('setData', JSON.stringify(localData));
     location.reload(true);
+  } else {
+    // ローカルストレージからの削除以外の処理
+    // つまりdb、app、sesの削除リクエスト
+    // fetchで非同期のpostリクエストを送る
+    // responseが帰って来たらページのリロード(成否は関係ないかな)
   }
 }
-function localStorageLoad(selectElement) {
-  // 2つ前の兄弟要素のテキストコンテントをキーにしてフォームへ読み込み
+function DataLoad(selectElement) {
+  // 2つ前の兄弟要素のテキストコンテントがキー名
   const keyName = selectElement.previousElementSibling.previousElementSibling.textContent;  
-  if (window.confirm(`読み込み？対象:「${keyName}」`)) {
-    let setData = JSON.parse(localStorage.getItem('setData') || '{}');
-    const targetData = setData[keyName];
-    // 現フォームデータ等リセット
-    MNS.monsters = [];
-    document.getElementsByClassName('mns-data')[0].innerHTML = '';
-    formNum = 0;
-    selected = -1;
-    // モンスター数分読み込む
-    for (const monster of targetData) {
-      addMonster(monster[0], monster[1], monster[2], monster[3]);
-    }
-    // 保存名も
-    document.getElementById('name').value = keyName;
+  if (!confirm(`読み込み？対象:「${keyName}」`)) {
+    return;
+  }
+  // 所持しているクラスで分岐
+  let targetData = [[]];
+  if (selectElement.classList.contains('dbDataLoad')) {
+    targetData = dbData[keyName];    
+  } else if (selectElement.classList.contains('appDataLoad')) {
+    targetData = appData[keyName];
+  } else if (selectElement.classList.contains('sesDataLoad')) {
+    targetData = sesData[keyName];
+  } else if (selectElement.classList.contains('localDataLoad')) {
+    targetData = localData[keyName];
+  }
+  // 現フォームデータ等リセット
+  MNS.monsters = [];
+  document.getElementsByClassName('mns-data')[0].innerHTML = '';
+  document.getElementById('name').value = keyName;
+  formNum = 0;
+  selected = -1;
+  // モンスター数分読み込む
+  for (const monster of targetData) {
+    addMonster(monster[0], monster[1], monster[2], monster[3]);
   }
 }
 
