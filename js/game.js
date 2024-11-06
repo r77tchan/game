@@ -1,3 +1,4 @@
+// game.js
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -9,8 +10,6 @@ const battle = {
   status: 0, // 0→待ち状態 1→カウント中 2→戦闘中 3→選択画面 4→カスタム戦闘中
   selectionScreen: 0,
 };
-
-const setData = {};
 
 const map = {
   x: 0,
@@ -370,10 +369,10 @@ const MNS = {
         const genId = calcLogic.generateUniqueId();
         MNS.monsters[genId] = {
           id: genId,
-          x: Number(msData[1]),
-          y: Number(msData[2]),
-          hp: Number(msData[3]),
-          type: msData[0],
+          x: Number(msData.x),
+          y: Number(msData.y),
+          hp: Number(msData.hp),
+          type: msData.type,
           aniSX: 1,
           aniSY: 2,
           aniTime: 0,
@@ -1115,8 +1114,8 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('resize', logic.resizeCanvas);
 
   // ローカルストレージ内容読み込み
-  if (localStorage.getItem('setData')) {
-    const localStorageData = JSON.parse(localStorage.getItem('setData'));
+  if (localStorage.getItem('localData')) {
+    const localStorageData = JSON.parse(localStorage.getItem('localData'));
     Object.keys(localStorageData).forEach(dataName => {
       setData[dataName] = localStorageData[dataName];
     });

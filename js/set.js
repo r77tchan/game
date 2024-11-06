@@ -1,13 +1,4 @@
-
-/*
-テスト(解析後を想定)
-const objData = {
-  名前: [['grimReaper', 835, 425, 7],['whiteKnight', 467, 527, 10]],
-}
-dbData = objData;
-appData = objData;
-*/
-
+// set.js
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -353,8 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
     insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button sesDataDelete" onclick="DataDelete(this)">削除</span><span class="tap-button sesDataLoad" onclick="DataLoad(this)">読み込み</span></li>`);
   });
   // ローカルストレージ内容表示
-  if (localStorage.getItem('setData')) {
-    localData = JSON.parse(localStorage.getItem('setData'));
+  if (localStorage.getItem('localData')) {
+    localData = JSON.parse(localStorage.getItem('localData'));
     const insertTarget = document.getElementsByClassName('storage-ul')[3];
 
     Object.keys(localData).forEach(dataName => {
@@ -580,11 +571,17 @@ document.querySelectorAll('.submit button').forEach(button => {
           const formData = [];
           for (let i = 0; i < mnsClass.length; i++) {
             const formDataClass = mnsClass[i].querySelectorAll('.form-data');
-            formData.push([formDataClass[0].value, formDataClass[1].value, formDataClass[2].value, formDataClass[3].value]);
+            const monsterData = {
+              "type": formDataClass[0].value,
+              "x": formDataClass[1].value,
+              "y": formDataClass[2].value,
+              "hp": formDataClass[3].value
+            }
+            formData.push(monsterData);
           }
 
           localData[name.value] = formData;
-          localStorage.setItem('setData', JSON.stringify(localData));
+          localStorage.setItem('localData', JSON.stringify(localData));
 
           location.reload(true);
         }
@@ -602,7 +599,7 @@ function DataDelete(selectElement) {
   // 所持しているクラスで分岐
   if (selectElement.classList.contains('localDataDelete')) {
     delete localData[keyName];
-    localStorage.setItem('setData', JSON.stringify(localData));
+    localStorage.setItem('localData', JSON.stringify(localData));
     location.reload(true);
   } else {
     // ローカルストレージからの削除以外の処理
@@ -635,7 +632,8 @@ function DataLoad(selectElement) {
   formNum = 0;
   selected = -1;
   // モンスター数分読み込む
-  for (const monster of targetData) {
-    addMonster(monster[0], monster[1], monster[2], monster[3]);
+  for (const monsterData of targetData) {
+
+    addMonster(monsterData.type, monsterData.x, monsterData.y, monsterData.hp);
   }
 }
