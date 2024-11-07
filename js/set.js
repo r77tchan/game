@@ -75,7 +75,7 @@ const map = {
   ],
 };
 const img = {
-  map1: Object.assign(new Image(), { src: 'images/map1.png' }),
+  map1: Object.assign(new Image(), { src: 'images/map1.png' }), // 第一引数に第二引数のプロパティを追加
   map2: Object.assign(new Image(), { src: 'images/map2.png' }),
   map3: Object.assign(new Image(), { src: 'images/map3.png' }),
   map4: Object.assign(new Image(), { src: 'images/map4.png' }),
@@ -305,11 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   // キーリスナー
   document.addEventListener('keydown', (e) => {
-    // フォームの入力にフォーカスがある場合、キーイベントを無視
+    // フォーカスを持っている要素を参照するプロパティで返されるのはDOM要素なのでtagNameプロパティを使用
     if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
       return;
     }
-    if (keys.states.hasOwnProperty(e.key)) {
+    if (keys.states.hasOwnProperty(e.key)) { // コンフィグキー以外の入力は無効
       if (!keys.states[e.key].pressed) {
         keys.states[e.key].pressed = true;
         keys.states[e.key].handled = false;
@@ -583,7 +583,7 @@ document.querySelectorAll('.submit button').forEach(button => {
           localData[name.value] = formData;
           localStorage.setItem('localData', JSON.stringify(localData));
 
-          location.reload(true);
+          location.reload();
         }
         break;
     }
@@ -600,12 +600,31 @@ function DataDelete(selectElement) {
   if (selectElement.classList.contains('localDataDelete')) {
     delete localData[keyName];
     localStorage.setItem('localData', JSON.stringify(localData));
-    location.reload(true);
+    location.reload();
   } else {
     // ローカルストレージからの削除以外の処理
     // つまりdb、app、sesの削除リクエスト
-    // fetchで非同期のpostリクエストを送る
-    // responseが帰って来たらページのリロード(成否は関係ないかな)
+    // fetchで非同期のPOSTリクエストを送る
+    // responseが帰って来たらページのリロード(成否は関係なくていい)
+    let action;
+    if (selectElement.classList.contains('dbDataDelete')) {
+      action = '0';
+    } else if (selectElement.classList.contains('appDataDelete')) {
+      action = '1';
+    } else if (selectElement.classList.contains('sesDataDelete')) {
+      action = '2';
+    }
+    fetch('/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json' // JSON形式
+      },
+      body: JSON.stringify({ name: keyName, action: action })
+    })
+    .then(() => {
+      // 何らかのレスポンスが返ってきたらリロード
+      location.reload();
+    });
   }
 }
 function DataLoad(selectElement) {
