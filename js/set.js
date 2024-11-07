@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button appDataDelete" onclick="DataDelete(this)">削除</span><span class="tap-button appDataLoad" onclick="DataLoad(this)">読み込み</span></li>`);
   });
   Object.keys(sesData).forEach(dataName => {
-    const insertTarget = document.getElementsByClassName('storage-ul')[0];
+    const insertTarget = document.getElementsByClassName('storage-ul')[2];
     insertTarget.insertAdjacentHTML('beforeend', `<li class="storage-li"><span class="storage-dataName">${dataName}</span><span class="tap-button sesDataDelete" onclick="DataDelete(this)">削除</span><span class="tap-button sesDataLoad" onclick="DataLoad(this)">読み込み</span></li>`);
   });
   // ローカルストレージ内容表示
