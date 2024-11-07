@@ -69,6 +69,7 @@
         </div>
 
         <div class="submit">
+          <!-- buttonはデフォルトがtype="submit" -->
           <button type="submit"  name="action" value="0">データベース保存</button>
           <button type="submit"  name="action" value="1">アプリケーションスコープ保存</button>
           <button type="submit"  name="action" value="2">セッションスコープ保存</button>
