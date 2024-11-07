@@ -49,7 +49,7 @@
       <div class="content-title">登録フォーム</div>
 
 
-      <form action="set" method="post">
+      <form action="add" method="post">
 
         <label>
           <div class="form-group">
