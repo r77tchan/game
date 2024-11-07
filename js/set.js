@@ -614,7 +614,7 @@ function DataDelete(selectElement) {
     } else if (selectElement.classList.contains('sesDataDelete')) {
       action = '2';
     }
-    fetch('/delete', {
+    fetch('delete', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json' // JSON形式
